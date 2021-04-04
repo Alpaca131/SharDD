@@ -1,0 +1,4 @@
+Flask
+Flask-session
+dataset
+psycopg2
