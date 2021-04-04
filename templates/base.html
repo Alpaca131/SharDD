@@ -9,7 +9,7 @@
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-      <div class="container-fluid">
+      <div class="container-fluid container">
         <a class="navbar-brand" href="#">BotDownDetector</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
@@ -19,6 +19,18 @@
             <a class="nav-link" href="{{ url_for("index") }}">ホーム</a>
             <a class="nav-link" href="{{ url_for("register") }}">登録</a>
           </div>
+        <div class="d-flex" style="margin-left: auto">
+            {% if session %}
+                {% if session['logged_in'] %}
+                    <h6 class="nav-link">{{ session['user_name'] }}</h6>
+                    <a class="btn btn-outline-light" href="{{ url_for("logout") }}?return_url={{ request.url }}">LOGOUT</a>
+                {% else %}
+                    <a class="btn btn-outline-light" href="{{ url_for("login") }}?return_url={{ request.url }}">LOGIN</a>
+                {% endif %}
+            {% else %}
+                <a class="btn btn-outline-light" href="{{ url_for("login") }}?return_url={{ request.url }}">LOGIN</a>
+            {% endif %}
+        </div>
         </div>
       </div>
     </nav>

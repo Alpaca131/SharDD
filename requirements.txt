@@ -1,4 +1,6 @@
-Flask
+Flask~=1.1.2
 Flask-session
-dataset
+dataset~=1.4.2
 psycopg2
+requests
+python-dotenv~=0.15.0
