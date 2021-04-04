@@ -2,6 +2,7 @@ Flask~=1.1.2
 Flask-session
 dataset~=1.4.2
 psycopg2
+sqlalchemy
 requests
 python-dotenv~=0.15.0
 gunicorn
