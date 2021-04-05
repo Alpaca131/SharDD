@@ -56,7 +56,7 @@ def login():
     return_url = session.get('return_url')
     if return_url is None:
         return_url = url_for('index')
-    res_token = exchange_code(code=code, redirect_url=f'https://albo.tk/login')
+    res_token = exchange_code(code=code, redirect_url=f'https://botdd.alpaca131.tk/login')
     token = res_token['access_token']
     refresh_token = res_token['refresh_token']
     res_info = requests.get(DISCORD_BASE_URL + 'users/@me', headers={'Authorization': f'Bearer {token}'})
