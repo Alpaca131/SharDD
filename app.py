@@ -64,7 +64,7 @@ def check_register():
     bot_id = request.args.get('bot_id')
     r = requests.get(f'https://discord.com/api/v8/applications/public?application_ids={bot_id}',
                      headers={'Authorization': settings.DISCORD_TOKEN})
-    description = r.json()['description']
+    description = r.json()[0]['description']
     register_data = register_info_table.find_one(bot_id=bot_id)
     register_token = register_data['token']
     if register_token in description:
