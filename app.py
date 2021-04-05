@@ -81,7 +81,8 @@ def check_register():
             token = token_dict[shard_id]
             token_table.insert(dict(token=token, bot_id=bot_id, shard_id=shard_id))
         bot_info_table.insert(dict(bot_id=bot_id, shard_count=len(token_dict), token=json.dumps(token_dict)))
-        return Response(json.dumps(token_dict), status=200, mimetype='application/json')
+        return Response(json.dumps(token_dict), status=200, mimetype='application/json',
+                        headers={'Content-Disposition': 'attachment; filename=BotDD_TOKEN.json'})
     return redirect(request.referrer), 401
 
 
