@@ -31,16 +31,6 @@ def index():
     return render_template('index.html')
 
 
-@app.route('/api/heart-beat', methods=['GET'])
-def heartbeat():
-    token = request.args.get('token')
-    if token is None:
-        return 'Invalid arguments.', 400
-    db_row = token_table.find_one(token=token)
-    if db_row is None:
-        return 'Invalid token.', 401
-
-
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'GET':
@@ -140,7 +130,7 @@ def post_heartbeat():
     return 'success', 200
 
 
-@app.route('/check-heartbeat')
+@app.route('/api/check-heartbeat')
 def check_heartbeat():
     access_token = request.args.get('token')
     if access_token != ACCESS_TOKEN:
