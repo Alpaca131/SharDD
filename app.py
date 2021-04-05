@@ -36,11 +36,8 @@ def heartbeat():
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'GET':
-        return_url = request.args.get('return_url')
-        if return_url is None:
-            return_url = url_for('index')
         if session.get('logged_in') is not True:
-            return redirect(url_for('login', return_url=return_url))
+            return redirect(url_for('login', return_url=request.url))
         return render_template('register.html', token='None')
     else:
         bot_id = request.form['bot_id']
@@ -81,12 +78,9 @@ def login():
 
 @app.route('/logout')
 def logout():
-    return_url = request.args.get('return_url')
-    if return_url is None or return_url == url_for('register'):
-        return_url = url_for('index')
     session['logged_in'] = False
     session.pop('discord_id', None)
-    return redirect(return_url)
+    return redirect(url_for('index'))
 
 
 def exchange_code(code, redirect_url):
