@@ -16,7 +16,8 @@
         <p class="display-6 container text-center">TOKEN: {{ token }}</p>
         <form class="container col-xl-2 col-6 text-center" action="{{ url_for("check_register") }}?bot_id={{ bot_id }}" method="post">
             <button type="submit" class="btn btn-outline-primary mt-1">認証</button>
-            <div class="form-text">認証をクリックすると、シャードIDごとのトークンがJSONでダウンロードされます。</div>
+            <div class="form-text">認証をクリックすると、シャードIDごとのトークンがJSONでダウンロードされます。<br>
+            ダウンロードは一度しか出来ないので、ファイルの取扱いには十分注意して下さい。</div>
         </form>
     {% endif %}
 {% endblock %}
