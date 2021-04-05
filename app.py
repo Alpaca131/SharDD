@@ -2,7 +2,7 @@ import secrets
 
 import dataset
 import requests
-from flask import Flask, session, request, render_template, redirect, url_for
+from flask import Flask, session, request, render_template, redirect, url_for, Response
 
 import json
 import settings
@@ -81,7 +81,7 @@ def check_register():
             token = token_dict[shard_id]
             token_table.insert(dict(token=token, bot_id=bot_id, shard_id=shard_id))
         bot_info_table.insert(dict(bot_id=bot_id, shard_count=len(token_dict), token=json.dumps(token_dict)))
-        return render_template('register-complete.html', token_dict=token_dict)
+        return Response(json.dumps(token_dict), status=200, mimetype='application/json')
     return redirect(request.referrer), 401
 
 
