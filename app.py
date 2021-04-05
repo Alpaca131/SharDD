@@ -71,7 +71,7 @@ def check_register():
         shard_count = register_data['shard_count']
         shard_number = 0
         token_dict = {}
-        while len(token_dict) == shard_count:
+        while len(token_dict) != shard_count:
             gen_token = secrets.token_hex(16)
             if token_table.find_one(token=gen_token) is None:
                 if gen_token not in token_dict.keys():
@@ -81,7 +81,7 @@ def check_register():
             token = token_dict[shard_id]
             token_table.insert(dict(token=token, bot_id=bot_id, shard_id=shard_id))
         bot_info_table.insert(dict(bot_id=bot_id, shard_count=len(token_dict), token=json.dumps(token_dict)))
-        return render_template('register-complete.html', token_list=token_dict)
+        return render_template('register-complete.html', token_dict=token_dict)
     return redirect(request.referrer), 401
 
 
