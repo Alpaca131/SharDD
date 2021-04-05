@@ -4,6 +4,7 @@ import dataset
 import requests
 from flask import Flask, session, request, render_template, redirect, url_for, Response
 
+import datetime
 import json
 import settings
 
@@ -11,12 +12,17 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = settings.SESSION_SECRET
 CLIENT_ID = settings.CLIENT_ID
 CLIENT_SECRET = settings.CLIENT_SECRET
+ACCESS_TOKEN = settings.ACCESS_TOKEN
 db: dataset.Database = dataset.connect(url=settings.DATABASE_URL)
 token_table: dataset.Table = db['token_data']
 register_info_table: dataset.Table = db['register_info']
 bot_info_table: dataset.Table = db['bot_info']
 DISCORD_BASE_URL = 'https://discordapp.com/api/'
-heartbeat_token_dict = {}
+token_on_memory = {}
+for row in token_table.find():
+    row_dict = dict(row)
+    row_dict.pop('token', None)
+    token_on_memory[row['token']] = row_dict
 
 
 @app.route('/')
@@ -80,6 +86,7 @@ def check_register():
         for shard_id in token_dict:
             token = token_dict[shard_id]
             token_table.insert(dict(token=token, bot_id=bot_id, shard_id=shard_id))
+            token_on_memory[token] = dict(bot_id=bot_id, shard_id=shard_id)
         bot_info_table.insert(dict(bot_id=bot_id, shard_count=len(token_dict), token=json.dumps(token_dict)))
         return Response(json.dumps(token_dict), status=200, mimetype='application/json',
                         headers={'Content-Disposition': 'attachment; filename=BotDD_TOKEN.json'})
@@ -114,6 +121,73 @@ def logout():
     session['logged_in'] = False
     session.pop('discord_id', None)
     return redirect(url_for('index'))
+
+
+@app.route('/api/heartbeat')
+def post_heartbeat():
+    token = request.args.get('token')
+    if token not in token_on_memory:
+        return """
+        Please register your bot first.
+        <a href=https://botdd.alpaca131.tk/>https://botdd.alpaca131.tk</a>
+        """, 401
+    now = datetime.datetime.now()
+    token_data = token_on_memory[token]
+    token_data["last_access"] = now
+    token_on_memory[token] = token_data
+    token_table.update(dict(token=token, last_access=now), ['token'])
+    return 'success', 200
+
+
+@app.route('/check-heartbeat')
+def check_heartbeat():
+    access_token = request.args.get('token')
+    if access_token != ACCESS_TOKEN:
+        return 'Authentication failed.<br>管理者以外叩けません！！', 401
+    alert_token_row = []
+    for token in token_on_memory:
+        token_data = token_on_memory[token]
+        last_access = token_data['last_access']
+        if last_access is None:
+            continue
+        now = datetime.datetime.now()
+        td: datetime.timedelta = last_access - now
+        if td.total_seconds() > 60:
+            alert_token_row.append(token_data)
+    for i in alert_token_row:
+        bot_id = i['bot_id']
+        shard_id = i['shard_id']
+        bot_info = bot_info_table.find_one(bot_id=bot_id)
+        webhook_url = bot_info['webhook_url']
+        user_id_list = json.loads(bot_info['user_mentions'])
+        role_mention_list = json.loads(bot_info['role_mentions'])
+        content = ""
+        for user_id in user_id_list:
+            content = f'{content}<@{user_id}> '
+        for role_id in role_mention_list:
+            content = f'{content}<@&{role_id}> '
+        requests.post(webhook_url,
+                      json={
+                          "content": content,
+                          "embeds": [{
+                              "title": "アラート",
+                              "description": "Botがダウンしました。",
+                              "fields": [
+                                  {
+                                      "name": "BOT",
+                                      "value": f"<@{bot_id}>",
+                                      "inline": False
+                                  },
+                                  {
+                                      "name": "シャード",
+                                      "value": f"ID: {shard_id}",
+                                      "inline": False
+                                  }
+                              ],
+                              "color": "16711680"
+                          }]
+                      })
+    return 'succeed', 200
 
 
 def exchange_code(code, redirect_url):
