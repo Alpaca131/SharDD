@@ -14,8 +14,8 @@
         </form>
     {% else %}
         <p class="display-6 container text-center">TOKEN: {{ token }}</p>
-        <form class="container col-xl-2 col-6 text-center" action="#" method="post">
-            <button type="submit" class="btn btn-outline-primary mt-1">確定</button>
+        <form class="container col-xl-2 col-6 text-center" action="{{ url_for("check_register") }}?bot_id={{ bot_id }}" method="post">
+            <button type="submit" class="btn btn-outline-primary mt-1">確認する</button>
         </form>
     {% endif %}
 {% endblock %}

@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block title %}登録完了{% endblock %}
+{% block content %}
+    <h1 class="container text-center">以下がトークンのリストです</h1>
+    {% for key, value in token_list.items() %}
+        <p class="display-3 container text-center">[シャード{{ key }}] {{ value }}</p>
+    {% endfor %}
+{% endblock %}

@@ -14,7 +14,9 @@ CLIENT_SECRET = settings.CLIENT_SECRET
 db: dataset.Database = dataset.connect(url=settings.DATABASE_URL)
 token_table: dataset.Table = db['token_data']
 register_info_table: dataset.Table = db['register_info']
+bot_info_table: dataset.Table = db['bot_info']
 DISCORD_BASE_URL = 'https://discordapp.com/api/'
+heartbeat_token_dict = {}
 
 
 @app.route('/')
@@ -40,8 +42,12 @@ def register():
             return redirect(url_for('login', return_url=request.url))
         return render_template('register.html', token='None')
     else:
-        bot_id = request.form['bot_id']
-        shard_count = request.form['shard_count']
+        bot_id = request.form.get('bot_id')
+        shard_count = request.form.get('shard_count')
+        if bot_info_table.find_one(bot_id=bot_id) is not None:
+            return """
+            <h1>既に登録済みです。</h1>
+            """
         if register_info_table.find_one(bot_id=bot_id) is not None:
             register_info_table.delete(bot_id=bot_id)
         while True:
@@ -50,7 +56,33 @@ def register():
                 token = gen_token
                 break
         register_info_table.insert(dict(bot_id=bot_id, token=token, shard_count=shard_count), ['bot_id'])
-        return render_template('register.html', token=token)
+        return render_template('register.html', token=token, bot_id=bot_id)
+
+
+@app.route('/check-register', methods=['POST'])
+def check_register():
+    bot_id = request.args.get('bot_id')
+    r = requests.get(f'https://discord.com/api/v8/applications/public?application_ids={bot_id}',
+                     headers={'Authorization': settings.DISCORD_TOKEN})
+    description = r.json()['description']
+    register_data = register_info_table.find_one(bot_id=bot_id)
+    register_token = register_data['token']
+    if register_token in description:
+        shard_count = register_data['shard_count']
+        shard_number = 0
+        token_dict = {}
+        while len(token_dict) == shard_count:
+            gen_token = secrets.token_hex(16)
+            if token_table.find_one(token=gen_token) is None:
+                if gen_token not in token_dict.keys():
+                    token_dict[shard_number] = gen_token
+                    shard_number = shard_number + 1
+        for shard_id in token_dict:
+            token = token_dict[shard_id]
+            token_table.insert(dict(token=token, bot_id=bot_id, shard_id=shard_id))
+        bot_info_table.insert(dict(bot_id=bot_id, shard_count=len(token_dict), token=json.dumps(token_dict)))
+        return render_template('register-complete.html', token_list=token_dict)
+    return redirect(request.referrer), 401
 
 
 @app.route('/login')
