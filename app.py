@@ -13,11 +13,13 @@ CLIENT_ID = settings.CLIENT_ID
 CLIENT_SECRET = settings.CLIENT_SECRET
 db: dataset.Database = dataset.connect(url=settings.DATABASE_URL)
 token_table: dataset.Table = db['token_data']
+register_info_table: dataset.Table = db['register_info']
 DISCORD_BASE_URL = 'https://discordapp.com/api/'
 
 
 @app.route('/')
 def index():
+    print(request.method)
     return render_template('index.html')
 
 
@@ -31,19 +33,27 @@ def heartbeat():
         return 'Invalid token.', 401
 
 
-@app.route('/register')
+@app.route('/register', methods=['GET', 'POST'])
 def register():
-    return_url = request.args.get('return_url')
-    if return_url is None:
-        return_url = url_for('index')
-    if session.get('logged_in') is not True:
-        return redirect(url_for('login', return_url=return_url))
-    while True:
-        gen_token = secrets.token_hex(8)
-        if token_table.find_one(token=gen_token) is None:
-            token = gen_token
-            break
-    return render_template('register.html', token=token)
+    if request.method == 'GET':
+        return_url = request.args.get('return_url')
+        if return_url is None:
+            return_url = url_for('index')
+        if session.get('logged_in') is not True:
+            return redirect(url_for('login', return_url=return_url))
+        return render_template('register.html', token='None')
+    else:
+        bot_id = request.form['bot_id']
+        shard_count = request.form['shard_count']
+        if register_info_table.find_one(bot_id=bot_id) is not None:
+            register_info_table.delete(bot_id=bot_id)
+        while True:
+            gen_token = secrets.token_hex(8)
+            if token_table.find_one(token=gen_token) is None:
+                token = gen_token
+                break
+        register_info_table.insert(dict(bot_id=bot_id, token=token, shard_count=shard_count), ['bot_id'])
+        return render_template('register.html', token=token)
 
 
 @app.route('/login')
@@ -72,7 +82,7 @@ def login():
 @app.route('/logout')
 def logout():
     return_url = request.args.get('return_url')
-    if return_url is None:
+    if return_url is None or return_url == url_for('register'):
         return_url = url_for('index')
     session['logged_in'] = False
     session.pop('discord_id', None)

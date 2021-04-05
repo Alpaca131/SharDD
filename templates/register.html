@@ -2,5 +2,20 @@
 {% block title %}登録{% endblock %}
 {% block content %}
     <h1 class="container text-center">登録</h1>
-    <h2>TOKEN: {{ token }}</h2>
+    {% if token=='None' %}
+        <form class="container col-xl-2 col-6" action="{{ url_for("register") }}" method="post">
+            <div class="mb-3">
+                <label for="idInput" class="form-label">BOTのID</label>
+                    <input type="number" class="form-control" name="bot_id" id="idInput" required>
+                <label for="shardCount" class="form-label">BOTのID</label>
+                    <input type="number" class="form-control" name="session_count" id="shardCount" required>
+                <button type="submit" class="btn btn-outline-primary mt-1">確定</button>
+            </div>
+        </form>
+    {% else %}
+        <p class="display-6 container text-center">TOKEN: {{ token }}</p>
+        <form class="container col-xl-2 col-6 text-center" action="#" method="post">
+            <button type="submit" class="btn btn-outline-primary mt-1">確定</button>
+        </form>
+    {% endif %}
 {% endblock %}
