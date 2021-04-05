@@ -86,7 +86,7 @@ def exchange_code(code, redirect_url):
         'grant_type': 'authorization_code',
         'code': code,
         'redirect_uri': redirect_url,
-        'scope': 'identify guilds'
+        'scope': 'identify'
     }
     headers = {
         'Content-Type': 'application/x-www-form-urlencoded'
