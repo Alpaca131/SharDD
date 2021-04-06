@@ -49,9 +49,12 @@ def register():
         else:
             user_id = None
         if role_ids is not None:
-            role_id = role_ids.split()
-            if len(role_id) == 0:
+            if role_ids == 'null':
                 role_id = None
+            else:
+                role_id = role_ids.split()
+                if len(role_id) == 0:
+                    role_id = None
         else:
             role_id = None
         if bot_info_table.find_one(bot_id=bot_id) is not None:
