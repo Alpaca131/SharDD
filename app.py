@@ -156,7 +156,7 @@ def post_heartbeat():
 def check_heartbeat():
     access_token = request.args.get('token')
     if access_token != ACCESS_TOKEN:
-        return jsonify({'description': 'Only owner can use this endpoint.'}), 403
+        return jsonify({'description': 'This endpoint is private. Only admin can use this endpoint.'}), 403
     alert_token_row = []
     for token in token_on_memory:
         token_data = token_on_memory[token]
