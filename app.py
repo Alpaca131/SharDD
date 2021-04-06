@@ -143,10 +143,7 @@ def logout():
 def post_heartbeat():
     token = request.headers.get('token')
     if token not in token_on_memory:
-        return """
-        Please register your bot first.
-        <a href=https://botdd.alpaca131.tk/>https://botdd.alpaca131.tk</a>
-        """, 401
+        return {'Error': 'Please register your bot first. https://botdd.alpaca131.tk/'}, 401
     now = datetime.datetime.now()
     token_data = token_on_memory[token]
     token_data["last_access"] = now
