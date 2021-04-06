@@ -141,8 +141,7 @@ def logout():
 
 @app.route('/api/heartbeat', methods=['POST'])
 def post_heartbeat():
-    request_dict = request.get_json()
-    token = request_dict.get('token')
+    token = request.headers.get('token')
     if token not in token_on_memory:
         return """
         Please register your bot first.
