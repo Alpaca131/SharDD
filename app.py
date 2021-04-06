@@ -40,6 +40,21 @@ def register():
     else:
         bot_id = request.form.get('bot_id')
         shard_count = request.form.get('shard_count')
+        webhook_url = request.form.get('webhook_url')
+        user_ids = request.form.get('user_ids')
+        role_ids = request.form.get('role_ids')
+        if user_ids is not None:
+            user_id = user_ids.split()
+            if len(user_id) == 0:
+                user_id = None
+        else:
+            user_id = None
+        if role_ids is not None:
+            role_id = role_ids.split()
+            if len(role_id) == 0:
+                role_id = None
+        else:
+            role_id = None
         if bot_info_table.find_one(bot_id=bot_id) is not None:
             return """
             <h1>既に登録済みです。</h1>
@@ -51,7 +66,10 @@ def register():
             if token_table.find_one(token=gen_token) is None:
                 token = gen_token
                 break
-        register_info_table.insert(dict(bot_id=bot_id, token=token, shard_count=shard_count), ['bot_id'])
+        register_info_table.insert(
+            dict(bot_id=bot_id, token=token, shard_count=shard_count,
+                 webhook_url=webhook_url, role_id=json.dumps(role_id), user_id=json.dumps(user_id)),
+            ['bot_id'])
         return render_template('register.html', token=token, bot_id=bot_id)
 
 
@@ -65,6 +83,9 @@ def check_register():
     register_token = register_data['token']
     if register_token in description:
         shard_count = register_data['shard_count']
+        webhook_url = register_data['webhook_url']
+        role_id_list = json.loads(register_data['role_id'])
+        user_id_list = json.loads(register_data['user_id'])
         shard_number = 0
         token_dict = {}
         while len(token_dict) != shard_count:
@@ -77,7 +98,10 @@ def check_register():
             token = token_dict[shard_id]
             token_table.insert(dict(token=token, bot_id=bot_id, shard_id=shard_id))
             token_on_memory[token] = dict(bot_id=bot_id, shard_id=shard_id)
-        bot_info_table.insert(dict(bot_id=bot_id, shard_count=len(token_dict), token=json.dumps(token_dict)))
+        bot_info_table.insert(
+            dict(bot_id=bot_id, shard_count=len(token_dict), token=json.dumps(token_dict),
+                 role_mentions=json.dumps(role_id_list), user_mentions=json.dumps(user_id_list),
+                 webhook_url=webhook_url))
         return Response(json.dumps(token_dict), status=200, mimetype='application/json',
                         headers={'Content-Disposition': 'attachment; filename=BotDD_TOKEN.json'})
     return redirect(request.referrer), 401
