@@ -176,10 +176,16 @@ def check_heartbeat():
         shard_id = i['shard_id']
         bot_info = bot_info_table.find_one(bot_id=bot_id)
         webhook_url = bot_info['webhook_url']
-        user_id_list = json.loads(bot_info['user_mentions'])
-        role_mention_list = json.loads(bot_info['role_mentions'])
+        if bot_info['user_mentions'] == 'null':
+            user_mention_list = []
+        else:
+            user_mention_list = json.loads(bot_info['user_mentions'])
+        if bot_info['role_mentions'] == 'null':
+            role_mention_list = []
+        else:
+            role_mention_list = json.loads(bot_info['role_mentions'])
         content = ""
-        for user_id in user_id_list:
+        for user_id in user_mention_list:
             content = f'{content}<@{user_id}> '
         for role_id in role_mention_list:
             content = f'{content}<@&{role_id}> '
