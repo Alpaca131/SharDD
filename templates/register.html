@@ -3,17 +3,17 @@
 {% block content %}
     <h1 class="container text-center">登録</h1>
     {% if token=='None' %}
-        <form class="container col-xl-2 col-6" action="{{ url_for("register") }}" method="post">
+        <form class="container col-xl-3 col-7" action="{{ url_for("register") }}" method="post">
             <div class="mb-3 text-center">
                 <label for="idInput" class="form-label">BOTのID</label>
                     <input type="number" class="form-control" name="bot_id" id="idInput" required>
                 <label for="shardCount" class="form-label">シャードの数</label>
                     <input type="number" class="form-control" name="shard_count" id="shardCount" required>
-                <label for="webhookUrl" class="form-label">webhookのURLを入力して下さい。</label>
+                <label for="webhookUrl" class="form-label">webhookのURL</label>
                     <input type="url" class="form-control" name="webhook_url" id="webhookUrl" required>
-                <label for="userIds" class="form-label">メンションするユーザーのIDをスペースで区切って入力して下さい</label>
+                <label for="userIds" class="form-label">メンションするユーザーのID (スペース区切り)</label>
                     <input type="url" class="form-control" name="user_ids" id="userIds">
-                <label for="roleIds" class="form-label">メンションするロールのIDをスペースで区切って入力して下さい</label>
+                <label for="roleIds" class="form-label">メンションするロールのID (スペース区切り)</label>
                     <input type="url" class="form-control" name="role_ids" id="roleIds">
                 <button type="submit" class="btn btn-outline-primary mt-1">確定</button>
             </div>
