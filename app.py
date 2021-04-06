@@ -27,7 +27,6 @@ for row in token_table.find():
 
 @app.route('/')
 def index():
-    print(request.method)
     return render_template('index.html')
 
 
