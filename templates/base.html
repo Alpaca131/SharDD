@@ -22,7 +22,7 @@
         <div class="d-flex" style="margin-left: auto">
             {% if session %}
                 {% if session['logged_in'] %}
-                    <h6 class="nav-link">{{ session['user_name'] }}</h6>
+                    <h6 class="nav-link text-light">{{ session['user_name'] }}</h6>
                     <a class="btn btn-outline-light" href="{{ url_for("logout") }}?return_url={{ request.url }}">LOGOUT</a>
                 {% else %}
                     <a class="btn btn-outline-light" href="{{ url_for("login") }}?return_url={{ request.url }}">LOGIN</a>
