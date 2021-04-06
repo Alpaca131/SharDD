@@ -2,7 +2,7 @@ import secrets
 
 import dataset
 import requests
-from flask import Flask, session, request, render_template, redirect, url_for, Response
+from flask import Flask, session, request, render_template, redirect, url_for, Response, jsonify
 
 import datetime
 import json
@@ -119,7 +119,7 @@ def login():
     return_url = session.get('return_url')
     if return_url is None:
         return_url = url_for('index')
-    res_token = exchange_code(code=code, redirect_url=f'https://botdd.alpaca131.tk/login')
+    res_token = exchange_code(code=code, redirect_url='https://botdd.alpaca131.tk/login')
     token = res_token['access_token']
     refresh_token = res_token['refresh_token']
     res_info = requests.get(DISCORD_BASE_URL + 'users/@me', headers={'Authorization': f'Bearer {token}'})
@@ -143,7 +143,7 @@ def logout():
 def post_heartbeat():
     token = request.headers.get('token')
     if token not in token_on_memory:
-        return {'Error': 'Please register your bot first. https://botdd.alpaca131.tk/'}, 401
+        return jsonify({'description': 'Please register your bot first.', 'hint': 'https://botdd.alpaca131.tk/'}), 401
     now = datetime.datetime.now()
     token_data = token_on_memory[token]
     token_data["last_access"] = now
@@ -156,7 +156,7 @@ def post_heartbeat():
 def check_heartbeat():
     access_token = request.args.get('token')
     if access_token != ACCESS_TOKEN:
-        return 'Authentication failed.<br>管理者以外叩けません！！', 401
+        return jsonify({'description': 'Only owner can use this endpoint.'}), 403
     alert_token_row = []
     for token in token_on_memory:
         token_data = token_on_memory[token]
