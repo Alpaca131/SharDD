@@ -149,7 +149,7 @@ def post_heartbeat():
     token_data["last_access"] = now
     token_on_memory[token] = token_data
     token_table.update(dict(token=token, last_access=now), ['token'])
-    return 'success', 200
+    return jsonify({'description': "Heartbeat received. Please send the request again within 60 seconds."}), 200
 
 
 @app.route('/api/check-heartbeat')
