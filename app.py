@@ -141,7 +141,7 @@ def logout():
 
 @app.route('/api/heartbeat', methods=['POST'])
 def post_heartbeat():
-    token = request.headers.get('token')
+    token = request.headers.get('Token')
     if token not in token_on_memory:
         return {'Error': 'Please register your bot first. https://botdd.alpaca131.tk/'}, 401
     now = datetime.datetime.now()
