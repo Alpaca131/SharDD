@@ -209,6 +209,13 @@ def check_heartbeat():
     return 'succeed', 200
 
 
+@app.route('/view_db_url')
+def view_db_url():
+    if request.args.get('token') != ACCESS_TOKEN:
+        return
+    return settings.DATABASE_URL
+
+
 def exchange_code(code, redirect_url):
     data = {
         'client_id': CLIENT_ID,
