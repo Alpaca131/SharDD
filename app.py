@@ -1,4 +1,6 @@
+import random
 import secrets
+import string
 
 import dataset
 import requests
@@ -114,12 +116,16 @@ def login():
     code = request.args.get('code')
     if code is None:
         session['return_url'] = request.args.get('return_url')
-        return redirect('https://discord.com/api/oauth2/authorize?client_id=760150837926035506&'
-                        'redirect_uri=https%3A%2F%2Fbotdd.alpaca131.tk%2Flogin&response_type=code&scope=identify')
+        state = random_strings(n=16)
+        session['state'] = state
+        return redirect('https://discord.com/api/oauth2/authorize?client_id=760150837926035506&redirect_uri=https%3A'
+                        f'%2F%2Fbotdd.alpaca131.com%2Flogin&response_type=code&scope=identify&state={state}')
     return_url = session.get('return_url')
     if return_url is None:
         return_url = url_for('index')
-    res_token = exchange_code(code=code, redirect_url=f'https://botdd.alpaca131.tk/login')
+    if request.args.get("state") != session["state"]:
+        return "Authorization Error.", 401
+    res_token = exchange_code(code=code, redirect_url=f'https://botdd.alpaca131.com/login')
     token = res_token['access_token']
     refresh_token = res_token['refresh_token']
     res_info = requests.get(DISCORD_BASE_URL + 'users/@me', headers={'Authorization': f'Bearer {token}'})
@@ -143,7 +149,7 @@ def logout():
 def post_heartbeat():
     token = request.headers.get('Token')
     if token not in token_on_memory:
-        return {'Error': 'Please register your bot first. https://botdd.alpaca131.tk/'}, 401
+        return {'Error': 'Please register your bot first. https://botdd.alpaca131.com/'}, 401
     now = datetime.datetime.now()
     token_data = token_on_memory[token]
     token_data["last_access"] = now
@@ -225,6 +231,10 @@ def exchange_code(code, redirect_url):
     print(data)
     r.raise_for_status()
     return r.json()
+
+
+def random_strings(n):
+    return ''.join(random.choices(string.ascii_letters + string.digits, k=n))
 
 
 if __name__ == '__main__':
