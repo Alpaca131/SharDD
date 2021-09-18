@@ -1,14 +1,26 @@
+import datetime
+import json
 import random
 import secrets
 import string
 
 import dataset
 import requests
+import sentry_sdk
 from flask import Flask, session, request, render_template, redirect, url_for, Response
+from sentry_sdk.integrations.flask import FlaskIntegration
 
-import datetime
-import json
 import settings
+
+sentry_sdk.init(
+    dsn=settings.SENTRY_DSN,
+    integrations=[FlaskIntegration()],
+
+    # Set traces_sample_rate to 1.0 to capture 100%
+    # of transactions for performance monitoring.
+    # We recommend adjusting this value in production.
+    traces_sample_rate=1.0
+)
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = settings.SESSION_SECRET
