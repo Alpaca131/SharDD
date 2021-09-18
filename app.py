@@ -165,7 +165,7 @@ def check_heartbeat():
             continue
         now = datetime.datetime.now()
         td: datetime.timedelta = last_access - now
-        if td.total_seconds() > 60:
+        if td.total_seconds() > 90:
             alert_token_row.append(token_data)
     for i in alert_token_row:
         bot_id = i['bot_id']
