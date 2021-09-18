@@ -17,7 +17,7 @@ CLIENT_SECRET = settings.CLIENT_SECRET
 ACCESS_TOKEN = settings.ACCESS_TOKEN
 db: dataset.Database = dataset.connect(url=settings.DATABASE_URL)
 token_table: dataset.Table = db['token_data']
-register_info_table: dataset.Table = db['register_info']
+one_time_token_table: dataset.Table = db['one_time_token']
 bot_info_table: dataset.Table = db['bot_info']
 DISCORD_BASE_URL = 'https://discordapp.com/api/'
 token_on_memory = {}
@@ -45,36 +45,28 @@ def register():
         user_ids = request.form.get('user_ids')
         role_ids = request.form.get('role_ids')
         if user_ids is not None:
-            user_id = user_ids.split()
-            if len(user_id) == 0:
-                user_id = None
+            user_ids = user_ids.split()
         else:
-            user_id = None
+            user_ids = None
         if role_ids is not None:
             if role_ids == 'null':
-                role_id = None
+                role_ids = None
             else:
-                role_id = role_ids.split()
-                if len(role_id) == 0:
-                    role_id = None
+                role_ids = role_ids.split()
         else:
-            role_id = None
+            role_ids = None
         if bot_info_table.find_one(bot_id=bot_id) is not None:
             return """
             <h1>既に登録済みです。</h1>
             """
-        if register_info_table.find_one(bot_id=bot_id) is not None:
-            register_info_table.delete(bot_id=bot_id)
-        while True:
-            gen_token = secrets.token_hex(8)
-            if token_table.find_one(token=gen_token) is None:
-                token = gen_token
-                break
-        register_info_table.insert(
-            dict(bot_id=bot_id, token=token, shard_count=shard_count,
-                 webhook_url=webhook_url, role_id=json.dumps(role_id), user_id=json.dumps(user_id)),
+        if one_time_token_table.find_one(bot_id=bot_id) is not None:
+            one_time_token_table.delete(bot_id=bot_id)
+        gen_token = secrets.token_hex(8)
+        one_time_token_table.insert(
+            dict(bot_id=bot_id, token=gen_token, shard_count=shard_count,
+                 webhook_url=webhook_url, role_ids=role_ids, user_ids=user_ids),
             ['bot_id'])
-        return render_template('register.html', token=token, bot_id=bot_id)
+        return render_template('register.html', token=gen_token, bot_id=bot_id)
 
 
 @app.route('/check-register', methods=['POST'])
@@ -83,13 +75,13 @@ def check_register():
     r = requests.get(f'https://discord.com/api/v8/applications/public?application_ids={bot_id}',
                      headers={'Authorization': settings.DISCORD_TOKEN})
     description = r.json()[0]['description']
-    register_data = register_info_table.find_one(bot_id=bot_id)
+    register_data = one_time_token_table.find_one(bot_id=bot_id)
     register_token = register_data['token']
     if register_token in description:
         shard_count = register_data['shard_count']
         webhook_url = register_data['webhook_url']
-        role_id_list = json.loads(register_data['role_id'])
-        user_id_list = json.loads(register_data['user_id'])
+        role_id_list = register_data['role_ids']
+        user_id_list = register_data['user_ids']
         shard_number = 0
         token_dict = {}
         while len(token_dict) != shard_count:
@@ -103,9 +95,10 @@ def check_register():
             token_table.insert(dict(token=token, bot_id=bot_id, shard_id=shard_id))
             token_on_memory[token] = dict(bot_id=bot_id, shard_id=shard_id)
         bot_info_table.insert(
-            dict(bot_id=bot_id, shard_count=len(token_dict), token=json.dumps(token_dict),
-                 role_mentions=json.dumps(role_id_list), user_mentions=json.dumps(user_id_list),
+            dict(bot_id=bot_id, shard_count=shard_count, token=token_dict,
+                 role_mentions=role_id_list, user_mentions=user_id_list,
                  webhook_url=webhook_url))
+        one_time_token_table.delete(bot_id=bot_id)
         return Response(json.dumps(token_dict), status=200, mimetype='application/json',
                         headers={'Content-Disposition': 'attachment; filename=BotDD_TOKEN.json'})
     return redirect(request.referrer), 401
