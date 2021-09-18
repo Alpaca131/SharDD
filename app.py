@@ -96,7 +96,7 @@ def check_register():
             token_table.insert(dict(token=token, bot_id=bot_id, shard_id=shard_id))
             token_on_memory[token] = dict(bot_id=bot_id, shard_id=shard_id)
         bot_info_table.insert(
-            dict(bot_id=bot_id, shard_count=shard_count, token=token_dict,
+            dict(bot_id=bot_id, shard_count=shard_count, tokens=token_dict,
                  role_mentions=role_id_list, user_mentions=user_id_list,
                  webhook_url=webhook_url))
         one_time_token_table.delete(bot_id=bot_id)
@@ -172,14 +172,14 @@ def check_heartbeat():
         shard_id = i['shard_id']
         bot_info = bot_info_table.find_one(bot_id=bot_id)
         webhook_url = bot_info['webhook_url']
-        if bot_info['user_mentions'] == 'null':
+        if bot_info['user_mentions'] is None:
             user_mention_list = []
         else:
-            user_mention_list = json.loads(bot_info['user_mentions'])
-        if bot_info['role_mentions'] == 'null':
+            user_mention_list = bot_info['user_mentions']
+        if bot_info['role_mentions'] is None:
             role_mention_list = []
         else:
-            role_mention_list = json.loads(bot_info['role_mentions'])
+            role_mention_list = bot_info['role_mentions']
         content = ""
         for user_id in user_mention_list:
             content = f'{content}<@{user_id}> '
