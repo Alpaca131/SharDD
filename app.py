@@ -42,17 +42,18 @@ def register():
         bot_id = request.form.get('bot_id')
         shard_count = request.form.get('shard_count')
         webhook_url = request.form.get('webhook_url')
-        user_ids = request.form.get('user_ids')
-        role_ids = request.form.get('role_ids')
-        if user_ids is not None:
-            user_ids = user_ids.split()
+        user_ids_args = request.form.get('user_ids')
+        role_ids_args = request.form.get('role_ids')
+        if user_ids_args is not None:
+            user_ids = []
+            for i in user_ids_args.split():
+                user_ids.append(int(i))
         else:
             user_ids = None
-        if role_ids is not None:
-            if role_ids == 'null':
-                role_ids = None
-            else:
-                role_ids = role_ids.split()
+        if role_ids_args is not None:
+            role_ids = []
+            for i in role_ids_args.split():
+                role_ids.append(int(i))
         else:
             role_ids = None
         if bot_info_table.find_one(bot_id=bot_id) is not None:
