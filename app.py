@@ -172,6 +172,8 @@ def check_heartbeat():
         if now - last_access > 90:
             alert_token_row.append(row)
     for i in alert_token_row:
+        if i["alerted"] is True:
+            continue
         bot_id = i['bot_id']
         shard_id = i['shard_id']
         bot_info = bot_info_table.find_one(bot_id=bot_id)
@@ -210,6 +212,7 @@ def check_heartbeat():
                               "color": "16711680"
                           }]
                       })
+        token_table.update(dict(token=i["token"], alerted=True), ["token"])
     return 'succeed', 200
 
 
