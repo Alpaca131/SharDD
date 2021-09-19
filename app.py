@@ -28,7 +28,7 @@ CLIENT_ID = settings.CLIENT_ID
 CLIENT_SECRET = settings.CLIENT_SECRET
 ACCESS_TOKEN = settings.ACCESS_TOKEN
 db: dataset.Database = dataset.connect(url=settings.DATABASE_URL)
-token_table: dataset.Table = db['token_data']
+token_table: dataset.Table = db['token']
 one_time_token_table: dataset.Table = db['one_time_token']
 bot_info_table: dataset.Table = db['bot_info']
 DISCORD_BASE_URL = 'https://discordapp.com/api/'
