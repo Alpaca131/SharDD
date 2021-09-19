@@ -11,6 +11,7 @@ BotDDは他のBotが落ちていないか確認できるBotで、一般ユーザ
 2. フォームにBotのID、シャードの数、通知するDiscordのwebhookのURL、メンションするユーザー・ロールのIDを入力します。
 3. 一時TOKENが発行され表示されるので、それを<https://discord.com/developers/applications>で自分のBotの説明欄に追記し保存します。
 4. BotDDに戻り、「認証」ボタンをクリックして各シャードのトークンが入ったJSONをダウンロードします。
+5. もう不要なのでBotの説明欄に追記した一時トークンを削除します。
 
 ### Botからheartbeatの送信
 - 前回のheartbeatから60秒以上アクセスがない場合、Botがダウンしたとみなします。
