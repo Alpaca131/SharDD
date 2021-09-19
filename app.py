@@ -78,6 +78,15 @@ def register():
         return render_template('register.html', token=gen_token, bot_id=bot_id)
 
 
+@app.route('/debug')
+def debug():
+    token = session['access_token']
+    res_info = requests.get("https://discord.com/api/v8/applications/727508841368911943",
+                            headers={'Authorization': f'Bearer {token}'})
+    res_dict = json.loads(res_info.content.decode())
+    return res_dict
+
+
 @app.route('/check-register', methods=['POST'])
 def check_register():
     bot_id = request.args.get('bot_id')
@@ -132,6 +141,7 @@ def login():
     res_info = requests.get(DISCORD_BASE_URL + 'users/@me', headers={'Authorization': f'Bearer {token}'})
     res_dict = json.loads(res_info.content.decode())
     session['logged_in'] = True
+    session['access_token'] = token
     session['user_id'] = int(res_dict['id'])
     session['user_name'] = res_dict['username']
     session['discord_refresh_token'] = refresh_token
