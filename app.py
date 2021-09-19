@@ -1,4 +1,3 @@
-import datetime
 import json
 import random
 import secrets
@@ -76,15 +75,6 @@ def register():
                  webhook_url=webhook_url, role_ids=role_ids, user_ids=user_ids),
             ['bot_id'])
         return render_template('register.html', token=gen_token, bot_id=bot_id)
-
-
-@app.route('/debug')
-def debug():
-    token = session['access_token']
-    res_info = requests.get("https://discord.com/api/v8/applications/727508841368911943",
-                            headers={'Authorization': f'Bearer {token}'})
-    res_dict = json.loads(res_info.content.decode())
-    return res_dict
 
 
 @app.route('/check-register', methods=['POST'])
