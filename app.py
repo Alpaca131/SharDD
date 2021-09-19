@@ -148,7 +148,7 @@ def logout():
 
 @app.route('/api/heartbeat', methods=['POST'])
 def post_heartbeat():
-    token = request.headers.get('token')
+    token = request.headers.get('Authorization')[6:]
     token_data = token_table.find_one(token=token)
     if token_data is None:
         return {'Error': 'Please register your bot first. https://botdd.alpaca131.com/'}, 401
