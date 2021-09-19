@@ -3,6 +3,7 @@ import json
 import random
 import secrets
 import string
+import time
 
 import dataset
 import requests
@@ -156,7 +157,7 @@ def post_heartbeat():
     token = request.headers.get('token')
     if token not in token_on_memory:
         return {'Error': 'Please register your bot first. https://botdd.alpaca131.com/'}, 401
-    now = datetime.datetime.now()
+    now = time.time()
     token_data = token_on_memory[token]
     token_data["last_access"] = now
     token_on_memory[token] = token_data
@@ -175,9 +176,8 @@ def check_heartbeat():
         last_access = token_data['last_access']
         if last_access is None:
             continue
-        now = datetime.datetime.now()
-        td: datetime.timedelta = last_access - now
-        if td.total_seconds() > 90:
+        now = time.time()
+        if now - last_access > 120:
             alert_token_row.append(token_data)
     for i in alert_token_row:
         bot_id = i['bot_id']
