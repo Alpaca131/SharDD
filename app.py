@@ -169,7 +169,7 @@ def check_heartbeat():
         if last_access is None:
             continue
         now = time.time()
-        if now - last_access > 90:
+        if now - last_access > 60:
             alert_token_row.append(row)
     for i in alert_token_row:
         if i["alerted"] is True:
