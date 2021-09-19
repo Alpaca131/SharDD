@@ -105,7 +105,7 @@ def check_register():
         bot_info_table.insert(
             dict(bot_id=bot_id, shard_count=shard_count, tokens=token_dict,
                  role_mentions=role_id_list, user_mentions=user_id_list,
-                 webhook_url=webhook_url))
+                 webhook_url=webhook_url, user_id=session['user_id']))
         one_time_token_table.delete(bot_id=bot_id)
         return Response(json.dumps(token_dict), status=200, mimetype='application/json',
                         headers={'Content-Disposition': 'attachment; filename=BotDD_TOKEN.json'})
