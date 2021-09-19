@@ -154,7 +154,7 @@ def post_heartbeat():
         return {'Error': 'Please register your bot first. https://botdd.alpaca131.com/'}, 401
     now = time.time()
     token_data["last_access"] = now
-    token_table.update(dict(token=token, last_access=now), ['token'])
+    token_table.update(dict(token=token, last_access=now, alerted=False), ['token'])
     return 'success', 200
 
 
