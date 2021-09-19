@@ -33,11 +33,6 @@ token_table: dataset.Table = db['token']
 one_time_token_table: dataset.Table = db['one_time_token']
 bot_info_table: dataset.Table = db['bot_info']
 DISCORD_BASE_URL = 'https://discordapp.com/api/'
-token_on_memory = {}
-for row in token_table.find():
-    row_dict = dict(row)
-    row_dict.pop('token', None)
-    token_on_memory[row['token']] = row_dict
 
 
 @app.route('/')
@@ -107,7 +102,6 @@ def check_register():
         for shard_id in token_dict:
             token = token_dict[shard_id]
             token_table.insert(dict(token=token, bot_id=bot_id, shard_id=shard_id))
-            token_on_memory[token] = dict(bot_id=bot_id, shard_id=shard_id)
         bot_info_table.insert(
             dict(bot_id=bot_id, shard_count=shard_count, tokens=token_dict,
                  role_mentions=role_id_list, user_mentions=user_id_list,
@@ -155,12 +149,11 @@ def logout():
 @app.route('/api/heartbeat', methods=['POST'])
 def post_heartbeat():
     token = request.headers.get('token')
-    if token not in token_on_memory:
+    token_data = token_table.find_one(token=token)
+    if token_data is None:
         return {'Error': 'Please register your bot first. https://botdd.alpaca131.com/'}, 401
     now = time.time()
-    token_data = token_on_memory[token]
     token_data["last_access"] = now
-    token_on_memory[token] = token_data
     token_table.update(dict(token=token, last_access=now), ['token'])
     return 'success', 200
 
@@ -171,14 +164,13 @@ def check_heartbeat():
     if access_token != ACCESS_TOKEN:
         return 'Authentication failed.', 401
     alert_token_row = []
-    for token in token_on_memory:
-        token_data = token_on_memory[token]
-        last_access = token_data['last_access']
+    for row in token_table.find():
+        last_access = row['last_access']
         if last_access is None:
             continue
         now = time.time()
-        if now - last_access > 120:
-            alert_token_row.append(token_data)
+        if now - last_access > 90:
+            alert_token_row.append(row)
     for i in alert_token_row:
         bot_id = i['bot_id']
         shard_id = i['shard_id']
