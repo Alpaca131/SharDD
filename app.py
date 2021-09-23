@@ -155,7 +155,7 @@ def post_heartbeat():
     now = time.time()
     token_data["last_access"] = now
     token_table.update(dict(token=token, last_access=now, alerted=False), ['token'])
-    return 'success', 200
+    return 'succeed', 200
 
 
 @app.route('/api/check-heartbeat')
