@@ -1,3 +1,4 @@
+import datetime
 import json
 import random
 import secrets
@@ -5,9 +6,10 @@ import string
 import time
 
 import dataset
+import locale
 import requests
 import sentry_sdk
-from flask import Flask, session, request, render_template, redirect, url_for, Response
+from flask import Flask, session, request, render_template, redirect, url_for, Response, abort
 from sentry_sdk.integrations.flask import FlaskIntegration
 
 import settings
@@ -111,6 +113,25 @@ def check_register():
     return redirect(request.referrer), 401
 
 
+@app.route('/status/<int:bot_id>')
+def status(bot_id):
+    row = bot_info_table.find_one(bot_id=bot_id)
+    if row is None:
+        return abort(404)
+    shard_list = []
+    for shard_id in range(0, row["shard_count"]):
+        if shard_id in row["offline_shards"]:
+            token = row["tokens"][shard_id]
+            token_data = token_table.find_one(token=token)
+            last_access = datetime.datetime.fromtimestamp(token_data["last_access"],
+                                                          datetime.timezone(datetime.timedelta(hours=9)))
+            shard_list.append({"id": shard_id, "status": "offline",
+                               "last_access": last_access.strftime('%m/%d %H:%M')})
+        else:
+            shard_list.append({"id": shard_id, "status": "online"})
+    return render_template("status_page.html", shard_list=shard_list)
+
+
 @app.route('/login')
 def login():
     code = request.args.get('code')
@@ -155,6 +176,13 @@ def post_heartbeat():
     now = time.time()
     token_data["last_access"] = now
     token_table.update(dict(token=token, last_access=now, alerted=False), ['token'])
+    # offline_shardsカラムからそのシャードを除外
+    bot_id = token_data["bot_id"]
+    bot_data = bot_info_table.find_one(bot_id=bot_id)
+    offline_shards = bot_data["offline_shards"]
+    if token_data["shard_id"] in offline_shards:
+        offline_shards.remove(token_data["shard_id"])
+        bot_info_table.update(dict(bot_id=bot_id, offline_shards=offline_shards), ["bot_id"])
     return 'succeed', 200
 
 
@@ -177,6 +205,11 @@ def check_heartbeat():
         bot_id = i['bot_id']
         shard_id = i['shard_id']
         bot_info = bot_info_table.find_one(bot_id=bot_id)
+        # offline_shardsカラムにそのシャードを追加
+        offline_shards = bot_info["offline_shards"]
+        offline_shards.append(i["shard_id"])
+        bot_info_table.update(dict(bot_id=bot_id, offline_shards=offline_shards), ["bot_id"])
+        # Webhook送信処理
         webhook_url = bot_info['webhook_url']
         if bot_info['user_mentions'] is None:
             user_mention_list = []
