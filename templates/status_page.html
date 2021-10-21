@@ -7,23 +7,58 @@
             <h1>{{ bot_name }}</h1>
         </div>
     </div>
-    {% if bot_status == "all offline" %}
-        <div class="alert alert-danger text-center" role="alert">
-            警告：全てのシャードがオフラインです。
-        </div>
-    {% elif bot_status == "some offline" %}
-        <div class="alert alert-warning text-center" role="alert">
-            警告：一部のシャードがオフラインです。
-        </div>
+    {% if shard_list | length == 1 %}
+        {% if bot_status == "all offline" %}
+            <div class="alert alert-danger text-center" role="alert">
+                Botがオフラインです。
+            </div>
+        {% else %}
+            <div class="alert alert-success text-center" role="alert">
+                Botはオンラインです。
+            </div>
+        {% endif %}
     {% else %}
-        <div class="alert alert-success text-center" role="alert">
-            全シャードがオンラインです。
-        </div>
+        {% if bot_status == "all offline" %}
+            <div class="alert alert-danger text-center" role="alert">
+                警告：全てのシャードがオフラインです。
+            </div>
+        {% elif bot_status == "some offline" %}
+            <div class="alert alert-warning text-center" role="alert">
+                警告：一部のシャードがオフラインです。
+            </div>
+        {% else %}
+            <div class="alert alert-success text-center" role="alert">
+                全シャードがオンラインです。
+            </div>
+        {% endif %}
     {% endif %}
 
     <div class="row">
         <div class="col-md-12 column">
             <div class="list-group">
+            {% if shard_list | length == 1 %}
+                {% set shard = shard_list[0] %}
+                {% if shard["status"] == "online" %}
+                    <div class="list-group-item">
+                        <h4 class="list-group-item-heading">
+                            オンライン
+                        </h4>
+                        <p class="list-group-item-text">
+                            <span class="badge bg-primary">オンライン</span>
+                        </p>
+                    </div>
+                {% else %}
+                    <div class="list-group-item">
+                        <h4 class="list-group-item-heading">
+                            オフライン
+                        </h4>
+                        <p class="list-group-item-text">
+                            <span class="badge bg-danger">オフライン</span>&nbsp;&nbsp;
+                            <small>最終オンライン時刻: {{ shard["last_access"] }}</small>
+                        </p>
+                    </div>
+                {% endif %}
+            {% else %}
                 {% for shard in shard_list %}
                     {% if shard["status"] == "online" %}
                         <div class="list-group-item">
@@ -46,6 +81,7 @@
                         </div>
                     {% endif %}
                 {% endfor %}
+            {% endif %}
             </div>
         </div>
     </div>
