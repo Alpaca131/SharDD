@@ -6,7 +6,6 @@ import string
 import time
 
 import dataset
-import locale
 import requests
 import sentry_sdk
 from flask import Flask, session, request, render_template, redirect, url_for, Response, abort
@@ -118,6 +117,7 @@ def status(bot_id):
     row = bot_info_table.find_one(bot_id=bot_id)
     if row is None:
         return abort(404)
+    bot_name = get_bot_name(bot_id)
     shard_list = []
     is_offline = False
     for shard_id in range(0, row["shard_count"]):
@@ -131,7 +131,7 @@ def status(bot_id):
                                "last_access": last_access.strftime('%m/%d %H:%M')})
         else:
             shard_list.append({"id": shard_id, "status": "online"})
-    return render_template("status_page.html", shard_list=shard_list, is_offline=is_offline)
+    return render_template("status_page.html", bot_name=bot_name, shard_list=shard_list, is_offline=is_offline)
 
 
 @app.route('/login')
@@ -271,6 +271,12 @@ def exchange_code(code, redirect_url):
 
 def random_strings(n):
     return ''.join(random.choices(string.ascii_letters + string.digits, k=n))
+
+
+def get_bot_name(bot_id: int):
+    res = requests.get(f"{DISCORD_BASE_URL}users/{bot_id}",
+                       headers={'Authorization': f"Bot {settings.BOT_TOKEN}"})
+    return res.json()["username"]
 
 
 if __name__ == '__main__':
