@@ -7,9 +7,13 @@
             <h1>{{ bot_name }}</h1>
         </div>
     </div>
-    {% if is_offline %}
+    {% if bot_status == "all offline" %}
+        <div class="alert alert-danger text-center" role="alert">
+            警告：全てのシャードがオフラインです。
+        </div>
+    {% elif bot_status == "some offline" %}
         <div class="alert alert-warning text-center" role="alert">
-            警告：一部シャードがオフラインです。
+            警告：一部のシャードがオフラインです。
         </div>
     {% else %}
         <div class="alert alert-success text-center" role="alert">

@@ -119,10 +119,10 @@ def status(bot_id):
         return abort(404)
     bot_name = get_bot_name(bot_id)
     shard_list = []
-    is_offline = False
+    offline_count = 0
     for shard_id in range(0, row["shard_count"]):
         if shard_id in row["offline_shards"]:
-            is_offline = True
+            offline_count += 1
             token = row["tokens"][str(shard_id)]
             token_data = token_table.find_one(token=token)
             last_access = datetime.datetime.fromtimestamp(token_data["last_access"],
@@ -131,7 +131,13 @@ def status(bot_id):
                                "last_access": last_access.strftime('%m/%d %H:%M')})
         else:
             shard_list.append({"id": shard_id, "status": "online"})
-    return render_template("status_page.html", bot_name=bot_name, shard_list=shard_list, is_offline=is_offline)
+    if offline_count == 0:
+        bot_status = "online"
+    elif offline_count == row["shard_count"]:
+        bot_status = "all offline"
+    else:
+        bot_status = "some offline"
+    return render_template("status_page.html", bot_name=bot_name, shard_list=shard_list, bot_status=bot_status)
 
 
 @app.route('/login')
