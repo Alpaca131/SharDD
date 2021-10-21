@@ -2,7 +2,7 @@
 {% block title %}オンラインステータス{% endblock %}
 {% block content %}
 <div class="container col-lg-5 col-sm-8">
-    <div class="row text-center mt-2">
+    <div class="row text-center mt-3 mb-3">
         <div class="col-md-12">
             <h1>{{ bot_name }}</h1>
         </div>
@@ -33,7 +33,7 @@
         {% endif %}
     {% endif %}
 
-    <div class="row">
+    <div class="row mb-3">
         <div class="col-md-12 column">
             <div class="list-group">
             {% if shard_list | length == 1 %}
