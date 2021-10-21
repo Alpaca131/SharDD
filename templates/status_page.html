@@ -7,9 +7,16 @@
             <h1>Status Page</h1>
         </div>
     </div>
-    <div class="alert alert-warning text-center" role="alert">
-        警告：一部シャードがオフラインです。
-    </div>
+    {% if is_offline %}
+        <div class="alert alert-warning text-center" role="alert">
+            警告：一部シャードがオフラインです。
+        </div>
+    {% else %}
+        <div class="alert alert-success text-center" role="alert">
+            全シャードがオンラインです。
+        </div>
+    {% endif %}
+
     <div class="row">
         <div class="col-md-12 column">
             <div class="list-group">
