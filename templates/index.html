@@ -1,5 +1,32 @@
 {% extends "base.html" %}
 {% block title %}ホーム{% endblock %}
 {% block content %}
-    <h1 class="container">ホーム</h1>
+    <div class="container text-center">
+        <h1 id="botddshardd">botDD・SharDDとは？</h1>
+        <p>Botがダウンした際、ユーザー・開発者が気付けるようにするサービスです。</p>
+        <h2 id="shardd">SharDDの利用方法</h2>
+        <h3 id="section">シャードごとのトークンの発行</h3>
+        <ol>
+        <li><a href="https://botdd.alpaca131.com/register">https://botdd.alpaca131.com/register</a>にアクセスし、Discordアカウントへのアクセスを許可します。</li>
+        <li>フォームにBotのID、シャードの数、通知するDiscordのwebhookのURL、メンションするユーザー・ロールのIDを入力します。</li>
+        <li>一時TOKENが発行され表示されるので、それを<a href="https://discord.com/developers/applications">https://discord.com/developers/applications</a>で自分のBotの説明欄に追記し保存します。</li>
+        <li>BotDDに戻り、「認証」ボタンをクリックして各シャードのトークンが入ったJSONをダウンロードします。</li>
+        <li>もう不要なのでBotの説明欄に追記した一時トークンを削除します。</li>
+        </ol>
+        <h3 id="botheartbeat">Botからheartbeatの送信</h3>
+        <ul>
+        <li>前回のheartbeatから60秒以上アクセスがない場合、Botがダウンしたとみなします。</li>
+        <li>60秒以内であればアクセス間隔は任意ですが、ネットワークのラグを考慮し60秒ちょうどにすることは推奨しません。</li>
+        <li>チェック間隔は60秒なので、最長でも障害発生から120秒以内には通知されます。</li>
+        <li>アクセス間隔があまりにも短く、当方が攻撃だと判断した場合は予告なくサービスの利用禁止措置を取ることがありますので、くれぐれも常識的な範囲内でのアクセスをお願いします。</li>
+        </ul>
+        <h4 id="heartbeat">heartbeatの送信方法</h4>
+        <p>headerに<code>{&quot;Authorization&quot;: &quot;Bearer TOKEN&quot;}</code>を指定し、<a href="https://botdd.alpaca131.com/api/heartbeat">https://botdd.alpaca131.com/api/heartbeat</a>にPOSTして下さい。</p>
+        <h4 id="py">サンプルコード(py)</h4>
+        <pre><code class="language-python" style="margin-right: 0">
+        import requests
+        requests.post(&quot;https://botdd.alpaca131.com/api/heartbeat&quot;,
+                      headers={&quot;Authorization&quot;: &quot;Bearer TOKEN&quot;})
+        </code></pre>
+    </div>
 {% endblock %}
