@@ -237,7 +237,8 @@ def check_heartbeat():
                           "content": content,
                           "embeds": [{
                               "title": "アラート",
-                              "description": "Botがダウンしました。",
+                              "description": "Botがダウンしました。\n"
+                                             f"[ダッシュボード](https://botdd.alpaca131.com/status/{bot_id})",
                               "fields": [
                                   {
                                       "name": "BOT",
