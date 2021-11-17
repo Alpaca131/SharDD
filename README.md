@@ -21,7 +21,8 @@ BotDDは他のBotが落ちていないか確認できるBotで、一般ユーザ
 
 #### heartbeatの送信方法
 headerに`{"Authorization": "Bearer TOKEN"}`を指定し、<https://botdd.alpaca131.com/api/heartbeat>にPOSTして下さい。  
-シャードごとのマシン名の表示を行いたい場合はPOSTリクエストのjsonに`{"machine_name": "マシン名"}`のように指定してください。
+シャードごとのマシン名の表示を行いたい場合はPOSTリクエストのjsonに`{"machine_name": "マシン名"}`のように指定してください。  
+**※マシン名はSharDDに登録した開発者本人のアカウントでログインしている時のみ表示されます。**
 #### サンプルコード(py)
 ```python
 import requests
