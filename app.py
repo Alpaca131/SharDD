@@ -114,31 +114,50 @@ def check_register():
 
 @app.route('/status/<int:bot_id>')
 def status_page(bot_id):
-    row = bot_info_table.find_one(bot_id=bot_id)
-    if row is None:
+    bot_info_row = bot_info_table.find_one(bot_id=bot_id)
+    if bot_info_row is None:
         return abort(404)
     bot_name = get_bot_name(bot_id)
+    if "user_id" in session:
+        session_user_id = session["user_id"]
+    else:
+        session_user_id = None
+    if bot_info_row["user_id"] == session_user_id:
+        show_machine_name = True
+    else:
+        show_machine_name = False
     shard_list = []
     offline_count = 0
-    for shard_id in range(0, row["shard_count"]):
-        if shard_id in row["offline_shards"]:
+    for shard_id in range(0, bot_info_row["shard_count"]):
+        if shard_id in bot_info_row["offline_shards"]:
             offline_count += 1
-            token = row["tokens"][str(shard_id)]
+            token = bot_info_row["tokens"][str(shard_id)]
             token_data = token_table.find_one(token=token)
-            machine_name = token_data["machine_name"]
             last_access = datetime.datetime.fromtimestamp(token_data["last_access"],
                                                           datetime.timezone(datetime.timedelta(hours=9)))
-            shard_list.append({"id": shard_id, "status": "offline",
-                               "last_access": last_access.strftime('%m/%d %H:%M')})
+            shard_data = {"id": shard_id, "status": "offline",
+                          "last_access": last_access.strftime('%m/%d %H:%M')}
         else:
-            shard_list.append({"id": shard_id, "status": "online"})
+            token_data = None
+            shard_data = {"id": shard_id, "status": "online"}
+
+        if show_machine_name:
+            if token_data is None:
+                token = bot_info_row["tokens"][str(shard_id)]
+                token_data = token_table.find_one(token=token)
+            machine_name = token_data["machine_name"]
+            if machine_name == "unknown":
+                machine_name = "未設定"
+            shard_data["machine_name"] = machine_name
+        shard_list.append(shard_data)
     if offline_count == 0:
         bot_status = "online"
-    elif offline_count == row["shard_count"]:
+    elif offline_count == bot_info_row["shard_count"]:
         bot_status = "all offline"
     else:
         bot_status = "some offline"
-    return render_template("status_page.html", bot_name=bot_name, shard_list=shard_list, bot_status=bot_status)
+    return render_template("status_page.html",
+                           bot_name=bot_name, shard_list=shard_list, bot_status=bot_status)
 
 
 @app.route('/login')

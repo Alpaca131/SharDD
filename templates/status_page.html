@@ -67,6 +67,7 @@
                             </h4>
                             <p class="list-group-item-text">
                                 <span class="badge bg-primary">オンライン</span>
+                                <small>マシン名：{{ shard["machine_name"] }}</small>
                             </p>
                         </div>
                     {% else %}
@@ -76,7 +77,7 @@
                             </h4>
                             <p class="list-group-item-text">
                                 <span class="badge bg-danger">オフライン</span>
-                                <small>最終オンライン時刻：{{ shard["last_access"] }}</small>
+                                <small>マシン名：{{ shard["machine_name"] }} 最終オンライン時刻：{{ shard["last_access"] }}</small>
                             </p>
                         </div>
                     {% endif %}
