@@ -179,11 +179,14 @@ def logout():
 def post_heartbeat():
     token = request.headers.get('Authorization')[7:]
     token_data = token_table.find_one(token=token)
+    machine_name = request.get_json().get('machine_name')
     if token_data is None:
         return {'Error': 'Please register your bot first. https://botdd.alpaca131.com/'}, 401
     now = time.time()
     token_data["last_access"] = now
-    token_table.update(dict(token=token, last_access=now, alerted=False), ['token'])
+    if machine_name is None:
+        machine_name = "unknown"
+    token_table.update(dict(token=token, last_access=now, alerted=False, machine_name=machine_name), ['token'])
     # offline_shardsカラムからそのシャードを除外
     bot_id = token_data["bot_id"]
     bot_data = bot_info_table.find_one(bot_id=bot_id)
