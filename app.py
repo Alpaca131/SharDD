@@ -113,7 +113,7 @@ def check_register():
 
 
 @app.route('/status/<int:bot_id>')
-def status(bot_id):
+def status_page(bot_id):
     row = bot_info_table.find_one(bot_id=bot_id)
     if row is None:
         return abort(404)
@@ -125,6 +125,7 @@ def status(bot_id):
             offline_count += 1
             token = row["tokens"][str(shard_id)]
             token_data = token_table.find_one(token=token)
+            machine_name = token_data["machine_name"]
             last_access = datetime.datetime.fromtimestamp(token_data["last_access"],
                                                           datetime.timezone(datetime.timedelta(hours=9)))
             shard_list.append({"id": shard_id, "status": "offline",
@@ -179,7 +180,12 @@ def logout():
 def post_heartbeat():
     token = request.headers.get('Authorization')[7:]
     token_data = token_table.find_one(token=token)
-    machine_name = request.get_json().get('machine_name')
+    request_json = request.get_json()
+    if request_json is not None:
+        machine_name = request_json.get('machine_name')
+    else:
+        machine_name = None
+
     if token_data is None:
         return {'Error': 'Please register your bot first. https://botdd.alpaca131.com/'}, 401
     now = time.time()
