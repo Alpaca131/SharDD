@@ -65,12 +65,13 @@
                             <h4 class="list-group-item-heading">
                                 シャード{{ shard["id"] }}
                             </h4>
-                            {% if "user_id" in session %}
+
                             <p class="list-group-item-text">
                                 <span class="badge bg-primary">オンライン</span>
+                                {% if "user_id" in session %}
                                 <small>マシン名：{{ shard["machine_name"] }}</small>
+                                {% endif %}
                             </p>
-                            {% endif %}
                         </div>
                     {% else %}
                         <div class="list-group-item">
@@ -80,9 +81,9 @@
                             {% if "user_id" in session %}
                             <p class="list-group-item-text">
                                 <span class="badge bg-danger">オフライン</span>
-                                <small>マシン名：{{ shard["machine_name"] }} 最終オンライン時刻：{{ shard["last_access"] }}</small>
+                                <small>マシン名：{{ shard["machine_name"] }}
+                                    {% if "user_id" in session %}最終オンライン時刻：{{ shard["last_access"] }}{% endif %}</small>
                             </p>
-                            {% endif %}
                         </div>
                     {% endif %}
                 {% endfor %}
