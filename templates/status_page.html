@@ -68,7 +68,7 @@
 
                             <p class="list-group-item-text">
                                 <span class="badge bg-primary">オンライン</span>
-                                {% if "user_id" in session %}
+                                {% if session['logged_in'] %}
                                 <small>マシン名：{{ shard["machine_name"] }}</small>
                                 {% endif %}
                             </p>
@@ -81,7 +81,7 @@
                             <p class="list-group-item-text">
                                 <span class="badge bg-danger">オフライン</span>
                                 <small>マシン名：{{ shard["machine_name"] }}
-                                    {% if "user_id" in session %}最終オンライン時刻：{{ shard["last_access"] }}{% endif %}</small>
+                                    {% if session['logged_in'] %}最終オンライン時刻：{{ shard["last_access"] }}{% endif %}</small>
                             </p>
                         </div>
                     {% endif %}
