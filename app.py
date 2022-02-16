@@ -315,4 +315,4 @@ def get_bot_name(bot_id: int):
 
 
 if __name__ == '__main__':
-    app.run(threaded=True)
+    app.run(threaded=True, host="127.0.0.2", port=5000)
