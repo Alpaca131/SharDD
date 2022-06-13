@@ -68,7 +68,7 @@
 
                             <p class="list-group-item-text">
                                 <span class="badge bg-primary">オンライン</span>
-                                {% if session['logged_in'] %}
+                                {% if show_machine_name %}
                                 <small>マシン名：{{ shard["machine_name"] }}</small>
                                 {% endif %}
                             </p>

@@ -127,7 +127,15 @@ def status_page(bot_id):
     else:
         show_machine_name = False
         if bot_info_row["role_id"] is not None:
-            if bot_info_row["role_id"] in get_roles(bot_info_row["guild_id"]):
+            if bot_info_row["role_id"] in get_user_roles(bot_info_row["guild_id"]):
+                show_machine_name = True
+            elif bot_info_row["guild_id"] == 731467468341510184 \
+                    and session_user_id in {728495196303523900, 718757495035789313,
+                                            602668987112751125, 396103644136734731,
+                                            570243143958528010, 544774774405201923,
+                                            500334141947248651, 343956207754805251,
+                                            340857303118905344, 637868010157244449,
+                                            334017809090740224, 686547120534454315}:
                 show_machine_name = True
     shard_list = []
     offline_count = 0
@@ -144,14 +152,13 @@ def status_page(bot_id):
             token_data = None
             shard_data = {"id": shard_id, "status": "online"}
 
-        if show_machine_name:
-            if token_data is None:
-                token = bot_info_row["tokens"][str(shard_id)]
-                token_data = token_table.find_one(token=token)
-            machine_name = token_data["machine_name"]
-            if machine_name == "unknown":
-                machine_name = "未設定"
-            shard_data["machine_name"] = machine_name
+        if token_data is None:
+            token = bot_info_row["tokens"][str(shard_id)]
+            token_data = token_table.find_one(token=token)
+        machine_name = token_data["machine_name"]
+        if machine_name == "unknown":
+            machine_name = "未設定"
+        shard_data["machine_name"] = machine_name
         shard_list.append(shard_data)
     if offline_count == 0:
         bot_status = "online"
@@ -160,13 +167,16 @@ def status_page(bot_id):
     else:
         bot_status = "some offline"
     return render_template("status_page.html",
-                           bot_name=bot_name, shard_list=shard_list, bot_status=bot_status)
+                           bot_name=bot_name, shard_list=shard_list, bot_status=bot_status,
+                           show_machine_name=show_machine_name)
 
-def get_roles(guild_id: int):
+
+def get_user_roles(guild_id: int):
     member_res = requests.get(DISCORD_BASE_URL + f'/users/@me/guilds/{guild_id}/member',
                               headers={'Authorization': f'Bearer {session["token"]}'})
     member_res_dict = member_res.json()
     return member_res_dict['roles']
+
 
 @app.route('/login')
 def login():
