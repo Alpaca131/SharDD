@@ -177,8 +177,9 @@ def login():
         session['return_url'] = request.args.get('return_url')
         state = random_strings(n=16)
         session['state'] = state
-        return redirect('https://discord.com/api/oauth2/authorize?client_id=760150837926035506&redirect_uri=https%3A'
-                        f'%2F%2Fbotdd.alpaca131.com%2Flogin&response_type=code&scope=identify&state={state}')
+        return redirect(f'https://discord.com/api/oauth2/authorize?client_id=760150837926035506&redirect_uri=https%3A'
+                        f'%2F%2Fbotdd.alpaca131.com%2Flogin&response_type=code&scope=guilds%20identify%20guilds'
+                        f'.members.read&state={state}')
     return_url = session.get('return_url')
     if return_url is None:
         return_url = url_for('index')
