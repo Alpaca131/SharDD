@@ -126,7 +126,7 @@ def status_page(bot_id):
         show_machine_name = True
     else:
         show_machine_name = False
-        if bot_info_row["role_id"] is not None:
+        if bot_info_row["role_id"] is not None and session_user_id is not None:
             if bot_info_row["role_id"] in get_user_roles(bot_info_row["guild_id"]):
                 show_machine_name = True
     shard_list = []
