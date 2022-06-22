@@ -164,7 +164,7 @@ def status_page(bot_id):
 
 
 def get_user_roles(guild_id: int):
-    member_res = requests.get(DISCORD_BASE_URL + f'/users/@me/guilds/{guild_id}/member',
+    member_res = requests.get(DISCORD_BASE_URL + f'users/@me/guilds/{guild_id}/member',
                               headers={'Authorization': f'Bearer {session["access_token"]}'})
     member_res_dict = member_res.json()
     return member_res_dict['roles']
