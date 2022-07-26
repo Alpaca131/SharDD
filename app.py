@@ -127,7 +127,7 @@ def status_page(bot_id):
     else:
         show_machine_name = False
         if bot_info_row["role_id"] is not None and session_user_id is not None:
-            if bot_info_row["role_id"] in get_user_roles(bot_info_row["guild_id"]):
+            if len(set(bot_info_row["role_mentions"]) & set(get_user_roles(bot_info_row["guild_id"]))) > 0:
                 show_machine_name = True
     shard_list = []
     offline_count = 0
@@ -164,10 +164,9 @@ def status_page(bot_id):
 
 
 def get_user_roles(guild_id: int):
-    member_res = requests.get(DISCORD_BASE_URL + f'users/@me/guilds/{guild_id}/member',
-                              headers={'Authorization': f'Bearer {session["access_token"]}'})
-    member_res_dict = member_res.json()
-    return member_res_dict['roles']
+    api_res = requests.get(DISCORD_BASE_URL + f'users/@me/guilds/{guild_id}/member',
+                           headers={'Authorization': f'Bearer {session["access_token"]}'})
+    return api_res.json()['roles']
 
 
 @app.route('/login')
