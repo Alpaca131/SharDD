@@ -28,7 +28,7 @@ app.config['SECRET_KEY'] = settings.SESSION_SECRET
 CLIENT_ID = settings.CLIENT_ID
 CLIENT_SECRET = settings.CLIENT_SECRET
 ACCESS_TOKEN = settings.ACCESS_TOKEN
-db: dataset.Database = dataset.connect(url=settings.DATABASE_URL)
+db: dataset.Database = dataset.connect(url="sqlite:///shardd.sqlite")
 token_table: dataset.Table = db['token']
 one_time_token_table: dataset.Table = db['one_time_token']
 bot_info_table: dataset.Table = db['bot_info']
@@ -73,7 +73,7 @@ def register():
         gen_token = secrets.token_hex(8)
         one_time_token_table.insert(
             dict(bot_id=bot_id, token=gen_token, shard_count=shard_count,
-                 webhook_url=webhook_url, role_ids=role_ids, user_ids=user_ids),
+                 webhook_url=webhook_url, role_ids=json.dumps(role_ids), user_ids=json.dumps(user_ids)),
             ['bot_id'])
         return render_template('register.html', token=gen_token, bot_id=bot_id)
 
@@ -89,8 +89,8 @@ def check_register():
     if register_token in description:
         shard_count = register_data['shard_count']
         webhook_url = register_data['webhook_url']
-        role_id_list = register_data['role_ids']
-        user_id_list = register_data['user_ids']
+        role_id_list = json.loads(register_data['role_ids'])
+        user_id_list = json.loads(register_data['user_ids'])
         shard_number = 0
         token_dict = {}
         while len(token_dict) != shard_count:
@@ -103,8 +103,8 @@ def check_register():
             token = token_dict[shard_id]
             token_table.insert(dict(token=token, bot_id=bot_id, shard_id=shard_id))
         bot_info_table.insert(
-            dict(bot_id=bot_id, shard_count=shard_count, tokens=token_dict,
-                 role_mentions=role_id_list, user_mentions=user_id_list,
+            dict(bot_id=bot_id, shard_count=shard_count, tokens=json.dumps(token_dict),
+                 role_mentions=json.dumps(role_id_list), user_mentions=json.dumps(user_id_list),
                  webhook_url=webhook_url, user_id=session['user_id']))
         one_time_token_table.delete(bot_id=bot_id)
         return Response(json.dumps(token_dict), status=200, mimetype='application/json',
@@ -127,14 +127,14 @@ def status_page(bot_id):
     else:
         show_machine_name = False
         if bot_info_row["role_id"] is not None and session_user_id is not None:
-            if len(set(bot_info_row["role_mentions"]) & set(get_user_roles(bot_info_row["guild_id"]))) > 0:
+            if len(set(json.loads(bot_info_row["role_mentions"])) & set(get_user_roles(bot_info_row["guild_id"]))) > 0:
                 show_machine_name = True
     shard_list = []
     offline_count = 0
     for shard_id in range(0, bot_info_row["shard_count"]):
         if shard_id in bot_info_row["offline_shards"]:
             offline_count += 1
-            token = bot_info_row["tokens"][str(shard_id)]
+            token = json.loads(bot_info_row["tokens"])[str(shard_id)]
             token_data = token_table.find_one(token=token)
             last_access = datetime.datetime.fromtimestamp(token_data["last_access"],
                                                           datetime.timezone(datetime.timedelta(hours=9)))
@@ -145,7 +145,7 @@ def status_page(bot_id):
             shard_data = {"id": shard_id, "status": "online"}
 
         if token_data is None:
-            token = bot_info_row["tokens"][str(shard_id)]
+            token = json.loads(bot_info_row["tokens"])[str(shard_id)]
             token_data = token_table.find_one(token=token)
         machine_name = token_data["machine_name"]
         if machine_name == "unknown":
@@ -260,11 +260,11 @@ def check_heartbeat():
         if bot_info['user_mentions'] is None:
             user_mention_list = []
         else:
-            user_mention_list = bot_info['user_mentions']
+            user_mention_list = json.loads(bot_info['user_mentions'])
         if bot_info['role_mentions'] is None:
             role_mention_list = []
         else:
-            role_mention_list = bot_info['role_mentions']
+            role_mention_list = json.loads(bot_info['role_mentions'])
         content = ""
         for user_id in user_mention_list:
             content = f'{content}<@{user_id}> '
