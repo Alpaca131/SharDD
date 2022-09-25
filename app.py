@@ -132,7 +132,7 @@ def status_page(bot_id):
     shard_list = []
     offline_count = 0
     for shard_id in range(0, bot_info_row["shard_count"]):
-        if shard_id in bot_info_row["offline_shards"]:
+        if shard_id in json.loads(bot_info_row["offline_shards"]):
             offline_count += 1
             token = json.loads(bot_info_row["tokens"])[str(shard_id)]
             token_data = token_table.find_one(token=token)
@@ -225,10 +225,10 @@ def post_heartbeat():
     # offline_shardsカラムからそのシャードを除外
     bot_id = token_data["bot_id"]
     bot_data = bot_info_table.find_one(bot_id=bot_id)
-    offline_shards = bot_data["offline_shards"]
+    offline_shards = json.loads(bot_data["offline_shards"])
     if token_data["shard_id"] in offline_shards:
         offline_shards.remove(token_data["shard_id"])
-        bot_info_table.update(dict(bot_id=bot_id, offline_shards=offline_shards), ["bot_id"])
+        bot_info_table.update(dict(bot_id=bot_id, offline_shards=json.dumps(offline_shards)), ["bot_id"])
     return 'succeed', 200
 
 
@@ -252,9 +252,9 @@ def check_heartbeat():
         shard_id = i['shard_id']
         bot_info = bot_info_table.find_one(bot_id=bot_id)
         # offline_shardsカラムにそのシャードを追加
-        offline_shards = bot_info["offline_shards"]
+        offline_shards = json.loads(bot_info["offline_shards"])
         offline_shards.append(i["shard_id"])
-        bot_info_table.update(dict(bot_id=bot_id, offline_shards=offline_shards), ["bot_id"])
+        bot_info_table.update(dict(bot_id=bot_id, offline_shards=json.dumps(offline_shards)), ["bot_id"])
         # Webhook送信処理
         webhook_url = bot_info['webhook_url']
         if bot_info['user_mentions'] is None:
