@@ -252,7 +252,7 @@ def check_heartbeat():
         shard_id = i['shard_id']
         bot_info = bot_info_table.find_one(bot_id=bot_id)
         # offline_shardsカラムにそのシャードを追加
-        offline_shards = json.loads(bot_info["offline_shards"])
+        offline_shards = json.loads(bot_info["offline_shards"]) if bot_info["offline_shards"] else []
         offline_shards.append(i["shard_id"])
         bot_info_table.update(dict(bot_id=bot_id, offline_shards=json.dumps(offline_shards)), ["bot_id"])
         # Webhook送信処理
