@@ -344,7 +344,7 @@ def purge_cf_cache(purge_urls: list):
     headers = {
         "Content-Type": "application/json",
         "X-Auth-Email": settings.CF_EMAIL,
-        "X-Auth-Key": settings.CLOUDFLARE_TOKEN
+        "X-Auth-Key": settings.CF_TOKEN
     }
 
     response = requests.request("POST", url, json=payload, headers=headers)
