@@ -343,7 +343,7 @@ def purge_cf_cache(purge_urls: list):
     }
     headers = {
         "Content-Type": "application/json",
-        "Authorization": "Bearer " + settings.CLOUDFLARE_TOKEN
+        "X-Auth-Key": settings.CLOUDFLARE_TOKEN
     }
 
     response = requests.request("POST", url, json=payload, headers=headers)
