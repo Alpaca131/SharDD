@@ -255,6 +255,7 @@ def check_heartbeat():
         offline_shards = json.loads(bot_info["offline_shards"]) if bot_info["offline_shards"] else []
         offline_shards.append(i["shard_id"])
         bot_info_table.update(dict(bot_id=bot_id, offline_shards=json.dumps(offline_shards)), ["bot_id"])
+        purge_cf_cache([f"botdd.alpaca131.com/status/{bot_id}", f"botdd.alpaca131.com/api/status/{bot_id}"])
         # Webhook送信処理
         webhook_url = bot_info['webhook_url']
         if bot_info['user_mentions'] is None:
@@ -332,6 +333,22 @@ def get_bot_name(bot_id: int):
     res = requests.get(f"{DISCORD_BASE_URL}users/{bot_id}",
                        headers={'Authorization': f"Bot {settings.BOT_TOKEN}"})
     return res.json()["username"]
+
+
+def purge_cf_cache(purge_urls: list):
+    url = "https://api.cloudflare.com/client/v4/zones/1ffe7e2646237cebde2a711a68c55ba4/purge_cache"
+
+    payload = {
+        "prefixes": purge_urls
+    }
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + settings.CLOUDFLARE_TOKEN
+    }
+
+    response = requests.request("POST", url, json=payload, headers=headers)
+
+    response.raise_for_status()
 
 
 if __name__ == '__main__':
