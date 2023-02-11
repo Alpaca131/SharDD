@@ -296,11 +296,8 @@ def check_heartbeat():
     return 'succeed', 200
 
 
-@app.route('/api/status')
-def status_api():
-    if "bot_id" not in request.args:
-        return "bot_id is required.", 400
-    bot_id = int(request.args["bot_id"])
+@app.route('/api/status/<int:bot_id>')
+def status_api(bot_id: int):
     status_row = bot_info_table.find_one(bot_id=bot_id)
     if status_row is None:
         return "Not found.", 404
