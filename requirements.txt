@@ -1,9 +1,10 @@
 Flask
 Flask-session
 dataset~=1.4.2
-psycopg2~=2.8.6
+psycopg2-binary==2.9.10
 sqlalchemy~=1.3.22
 requests
 python-dotenv~=0.15.0
 gunicorn
 sentry-sdk[flask]
+flask-cors==5.0.0

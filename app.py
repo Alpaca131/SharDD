@@ -9,6 +9,7 @@ import dataset
 import requests
 import sentry_sdk
 from flask import Flask, session, request, render_template, redirect, url_for, Response, abort
+from flask_cors import cross_origin
 from sentry_sdk.integrations.flask import FlaskIntegration
 
 import settings
@@ -298,6 +299,7 @@ def check_heartbeat():
 
 
 @app.route('/api/status/<int:bot_id>')
+@cross_origin()
 def status_api(bot_id: int):
     status_row = bot_info_table.find_one(bot_id=bot_id)
     if status_row is None:

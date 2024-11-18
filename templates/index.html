@@ -1,8 +1,8 @@
 {% extends "base.html" %}
 {% block title %}ホーム{% endblock %}
 {% block content %}
-    <div class="container text-center">
-        <h1 id="botddshardd">botDD・SharDDとは？</h1>
+    <div class="container text-left">
+        <h1 id="botddshardd">Bot Down Detector</h1>
         <p>自分のBotがダウンした際、開発者が気付けるようにするサービスです。</p>
         <h2 id="shardd">利用方法</h2>
         <h3 id="section">シャードごとのトークンの発行</h3>
@@ -11,7 +11,7 @@
         <li>フォームにBotのID、シャードの数、通知するDiscordのwebhookのURL、メンションするユーザー・ロールのIDを入力します。</li>
         <li>一時TOKENが発行され表示されるので、それを<a href="https://discord.com/developers/applications">https://discord.com/developers/applications</a>で自分のBotの説明欄に追記し保存します。</li>
         <li>BotDDに戻り、「認証」ボタンをクリックして各シャードのトークンが入ったJSONをダウンロードします。</li>
-        <li>もう不要なのでBotの説明欄に追記した一時トークンを削除します。</li>
+        <li>Botの説明欄に追記した一時トークンを削除します。</li>
         </ol>
         <h3 id="botheartbeat">Botからheartbeatの送信</h3>
         <ul>
