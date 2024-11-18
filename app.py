@@ -34,7 +34,7 @@ token_table: dataset.Table = db['token']
 one_time_token_table: dataset.Table = db['one_time_token']
 bot_info_table: dataset.Table = db['bot_info']
 DISCORD_BASE_URL = 'https://discordapp.com/api/'
-CORS(app)
+CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 
 @app.route('/')
@@ -300,7 +300,6 @@ def check_heartbeat():
 
 
 @app.route('/api/status/<int:bot_id>')
-@cross_origin()
 def status_api(bot_id: int):
     status_row = bot_info_table.find_one(bot_id=bot_id)
     if status_row is None:
