@@ -9,7 +9,7 @@ import dataset
 import requests
 import sentry_sdk
 from flask import Flask, session, request, render_template, redirect, url_for, Response, abort
-from flask_cors import cross_origin
+from flask_cors import cross_origin, CORS
 from sentry_sdk.integrations.flask import FlaskIntegration
 
 import settings
@@ -34,6 +34,7 @@ token_table: dataset.Table = db['token']
 one_time_token_table: dataset.Table = db['one_time_token']
 bot_info_table: dataset.Table = db['bot_info']
 DISCORD_BASE_URL = 'https://discordapp.com/api/'
+CORS(app)
 
 
 @app.route('/')
